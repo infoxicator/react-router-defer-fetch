@@ -5,41 +5,39 @@ import { useLoaderData, defer, Await, useAsyncValue, useAsyncError } from 'react
 
 export const loader = async () => {
   
-  // const critical1Promise = fetch('/test?text=critical1&delay=250').then(res => res.json());
-  // const critical2Promise = fetch('/test?text=critical2&delay=500').then(res => res.json());
-  // const lazyResolvedPromise = fetch('/test?text=lazyResolved&delay=0').then(res => res.json());
-  // const lazy1Promise = fetch('/test?text=lazy1&delay=500').then(res => res.json());
-  // const lazy2Promise = fetch('/test?text=lazy2&delay=1500').then(res => res.json());
-  // const lazy3Promise = fetch('/test?text=lazy3&delay=2000').then(res => res.json());
-  // const lazyErrorPromise = fetch('/error').then(res => { 
-  //   if(!res.ok) throw Error('kaboom')
-  //   return res.json()
-  // });
+  const critical1Promise = fetch('/test?text=critical1&delay=250').then(res => res.json());
+  const critical2Promise = fetch('/test?text=critical2&delay=500').then(res => res.json());
+  const lazyResolvedPromise = fetch('/test?text=lazyResolved&delay=100').then(res => res.json());
+  const lazy1Promise = fetch('/test?text=lazy1&delay=500').then(res => res.json());
+  const lazy2Promise = fetch('/test?text=lazy2&delay=1500').then(res => res.json());
+  const lazy3Promise = fetch('/test?text=lazy3&delay=2500').then(res => res.json());
+  const lazyErrorPromise = fetch('/test?text=lazy3&delay=3000').then(res => { 
+        throw Error('Oh noo!')
+  });
 
-  // // parallel fetch
-  // return defer({
-  //     critical1: await critical1Promise,
-  //     critical2: await critical2Promise,
-  //     lazyResolved: lazyResolvedPromise,
-  //     lazy1: lazy1Promise,
-  //     lazy2: lazy2Promise,
-  //     lazy3: lazy3Promise,
-  //     lazyError: lazyErrorPromise
-  // })
-
-  // waterfall fetch
+  // parallel fetch
   return defer({
-    critical1: await fetch('/test?text=critical1&delay=250').then(res => res.json()),
-    critical2: await fetch('/test?text=critical2&delay=500').then(res => res.json()),
-    lazyResolved: await fetch('/test?text=lazyResolved&delay=0').then(res => res.json()),
-    lazy1: fetch('/test?text=lazy1&delay=1000').then(res => res.json()),
-    lazy2: fetch('/test?text=lazy2&delay=1500').then(res => res.json()),
-    lazy3: fetch('/test?text=lazy3&delay=2000').then(res => res.json()),
-    lazyError: fetch('/error').then(res => { 
-      if(!res.ok) throw Error('kaboom')
-      return res.json()
-    }),
+      critical1: await critical1Promise,
+      critical2: await critical2Promise,
+      lazyResolved: lazyResolvedPromise,
+      lazy1: lazy1Promise,
+      lazy2: lazy2Promise,
+      lazy3: lazy3Promise,
+      lazyError: lazyErrorPromise
   })
+
+  // // waterfall fetch, don't copy this code
+  // return defer({
+  //   critical1: await fetch('/test?text=critical1&delay=250').then(res => res.json()),
+  //   critical2: await fetch('/test?text=critical2&delay=500').then(res => res.json()),
+  //   lazyResolved: fetch('/test?text=lazyResolved&delay=100').then(res => res.json()),
+  //   lazy1: fetch('/test?text=lazy1&delay=1000').then(res => res.json()),
+  //   lazy2: fetch('/test?text=lazy2&delay=1500').then(res => res.json()),
+  //   lazy3: fetch('/test?text=lazy3&delay=2000').then(res => res.json()),
+  //   lazyError: fetch('/test?text=lazy3&delay=2500').then(res => { 
+  //     throw Error('Oh noo!')
+  //   }),
+  // })
 }
 
 function RenderAwaitedData() {
@@ -68,7 +66,7 @@ function App() {
     <p>{data.critical1.text}</p>
       <p>{data.critical2.text}</p>
 
-      <React.Suspense fallback={<p>should not see me!</p>}>
+      <React.Suspense fallback={<p>loading... should not see me!</p>}>
         <Await resolve={data.lazyResolved}>
           <RenderAwaitedData />
         </Await>
